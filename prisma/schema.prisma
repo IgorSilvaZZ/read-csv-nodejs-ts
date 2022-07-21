@@ -10,12 +10,22 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+model Categories {
+  id       String     @id @default(uuid())
+  name     String
+  products Products[]
+
+  @@map("categories")
+}
+
 model Products {
-  id          String @id @default(uuid())
-  code_bar    String
-  description String
-  price       Float
-  quantity    Int
+  id           String      @id @default(uuid())
+  code_bar     String
+  description  String
+  price        Float
+  quantity     Int
+  Categories   Categories? @relation(fields: [categoriesId], references: [id])
+  categoriesId String?
 
   @@map("products")
 }
