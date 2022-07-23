@@ -3,13 +3,20 @@ import { client } from "../database/client";
 import { ICreateProductDTO } from "../dtos/ICreateProductDTO";
 
 export class ProductsRepository {
-  async create({ code_bar, description, price, quantity }: ICreateProductDTO) {
+  async create({
+    code_bar,
+    description,
+    price,
+    quantity,
+    categoriesId,
+  }: ICreateProductDTO) {
     const product = await client.products.create({
       data: {
         code_bar,
         description,
         price,
         quantity,
+        categoriesId,
       },
     });
 
@@ -24,5 +31,15 @@ export class ProductsRepository {
     });
 
     return product;
+  }
+
+  async list() {
+    const products = await client.products.findMany({
+      include: {
+        Categories: true,
+      },
+    });
+
+    return products;
   }
 }

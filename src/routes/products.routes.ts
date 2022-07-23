@@ -10,6 +10,8 @@ const productsRoutes = Router();
 
 const productController = new ProductController();
 
+productsRoutes.get("/", productController.list);
+
 productsRoutes.post(
   "/file",
   multerConfig.single("file"),

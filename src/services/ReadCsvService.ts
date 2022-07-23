@@ -2,16 +2,19 @@ import { Readable } from "stream";
 import readline from "readline";
 
 import { ProductsRepository } from "../repositories/ProductsRepository";
+import { CategoriesRepository } from "../repositories/CategoriesRepository";
 
 interface IProduct {
   code_bar: string;
   description: string;
   price: number;
   quantity: number;
+  categoriesId: string;
 }
 
 export class ReadCsvService {
   async execute(file?: Buffer) {
+    const categoriesRepository = new CategoriesRepository();
     const productRepository = new ProductsRepository();
 
     // Permitir que o arquivo seja lido sem estar na maquina onde o server esta!
@@ -29,17 +32,29 @@ export class ReadCsvService {
 
     for await (let line of productsLine) {
       // Para cada linha crie um array pra cada separador pela virgula
-      const [code_bar, description, price, quantity] = line.split(",");
+      const [code_bar, description, price, quantity, categoryName] =
+        line.split(",");
 
-      products.push({
-        code_bar,
-        description,
-        price: Number(price),
-        quantity: Number(quantity),
-      });
+      const category = await categoriesRepository.findByName(categoryName);
+
+      if (category) {
+        products.push({
+          code_bar,
+          description,
+          price: Number(price),
+          quantity: Number(quantity),
+          categoriesId: category.id,
+        });
+      }
     }
 
-    for await (let { code_bar, description, price, quantity } of products) {
+    for await (let {
+      code_bar,
+      description,
+      price,
+      quantity,
+      categoriesId,
+    } of products) {
       const productExists = await productRepository.findByCodeBar(code_bar);
 
       if (!productExists) {
@@ -48,6 +63,7 @@ export class ReadCsvService {
           description,
           price,
           quantity,
+          categoriesId,
         });
       }
     }

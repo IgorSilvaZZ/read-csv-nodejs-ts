@@ -3,4 +3,5 @@ export interface ICreateProductDTO {
   description: string;
   price: number;
   quantity: number;
+  categoriesId: string;
 }
